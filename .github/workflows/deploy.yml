@@ -31,10 +31,10 @@ jobs:
             -t ${{ secrets.ACR_LOGIN_SERVER }}/oicdapp:latest app
           docker push ${{ secrets.ACR_LOGIN_SERVER }}/oicdapp:latest
 
-      - name: Deploy to Azure Container App
-        run: |
-            az containerapp update \
-                --name oicd-app \
-                --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-                --image ${{ secrets.ACR_LOGIN_SERVER }}/oicd-app:latest \
-                --environment ${{ secrets.AZURE_CONTAINERAPPS_ENVIRONMENT }}
+      - name: Build and deploy Container App
+        uses: azure/container-apps-deploy-action@v1
+        with:
+            acrName: ${{ secrets.ACR_LOGIN_SERVER }}
+            containerAppName: oicd-app-w
+            resourceGroup: vinted-rg
+            imageToDeploy: ${{ secrets.ACR_LOGIN_SERVER }}/oicdapp:latest
