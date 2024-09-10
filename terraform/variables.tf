@@ -105,3 +105,21 @@ variable "vinted_container_registry_name" {
   type        = string
   default     = "vintedContainerRegistry"
 }
+
+variable "vinted_container_image_name" {
+  type        = string
+  default     = "vintedcontainerregistry.azurecr.io/oicdapp:latest"
+}
+variable "vinted_container_name" {
+  type        = string
+  default     = "oicd-app-container"
+}
+variable "vinted_workspace_name" {
+  type        = string
+  default     = "vinted-acctest-01"
+}
+variable "vinted_app_environment_name" {
+  type        = string
+  default     = "vinted-oicd-app"
+}
+

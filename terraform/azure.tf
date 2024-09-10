@@ -121,10 +121,78 @@ resource "azurerm_linux_virtual_machine" "vinted_oicd_app_vm" {
   tags = var.vinted_tags
 }
 
+# Deploy
+
 resource "azurerm_container_registry" "vinted_acr" {
   name                = var.vinted_container_registry_name
   resource_group_name = azurerm_resource_group.vinted_rg.name
   location            = azurerm_resource_group.vinted_rg.location
   sku                 = "Premium"
-  admin_enabled       = false
+  admin_enabled       = true
+}
+
+resource "azurerm_log_analytics_workspace" "vinted_workspace" {
+  name                = var.vinted_workspace_name
+  location            = azurerm_resource_group.vinted_rg.location
+  resource_group_name = azurerm_resource_group.vinted_rg.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+}
+
+resource "azurerm_container_app_environment" "vinted_container_app" {
+  name                       = var.vinted_app_environment_name
+  location                   = azurerm_resource_group.vinted_rg.location
+  resource_group_name        = azurerm_resource_group.vinted_rg.name
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.vinted_workspace.id
+}
+resource "azurerm_container_app" "vinted_container_app" {
+  name                         = "oicd-app-w"
+  container_app_environment_id = azurerm_container_app_environment.vinted_container_app.id
+  resource_group_name          = azurerm_resource_group.vinted_rg.name
+  revision_mode                = "Single"
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.containerapp.id]
+  }
+ 
+  registry {
+    server   = azurerm_container_registry.vinted_acr.login_server
+    identity = azurerm_user_assigned_identity.containerapp.id
+  }
+
+  template {
+    container {
+      name   = var.vinted_container_name
+      image  = var.vinted_container_image_name
+      cpu    = 0.25
+      memory = "0.5Gi"
+    }
+  }
+
+   ingress {
+    allow_insecure_connections = true
+    external_enabled           = true
+    target_port                = 3000
+    traffic_weight {
+      percentage = 100
+      latest_revision = true
+    }
+
+  }
+}
+
+resource "azurerm_user_assigned_identity" "containerapp" {
+  location            = azurerm_resource_group.vinted_rg.location
+  name                = "containerappmi"
+  resource_group_name = azurerm_resource_group.vinted_rg.name
+}
+
+resource "azurerm_role_assignment" "containerapp" {
+  scope                = azurerm_container_registry.vinted_acr.id
+  role_definition_name = "acrpull"
+  principal_id         = azurerm_user_assigned_identity.containerapp.principal_id
+  depends_on = [
+    azurerm_user_assigned_identity.containerapp
+  ]
 }
