@@ -120,3 +120,11 @@ resource "azurerm_linux_virtual_machine" "vinted_oicd_app_vm" {
   }
   tags = var.vinted_tags
 }
+
+resource "azurerm_container_registry" "vinted_acr" {
+  name                = var.vinted_container_registry_name
+  resource_group_name = azurerm_resource_group.vinted_rg.name
+  location            = azurerm_resource_group.vinted_rg.location
+  sku                 = "Premium"
+  admin_enabled       = false
+}
