@@ -22,5 +22,12 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/oicdapp:latest app
+          echo "${{ secrets.ENV_FILE }}" > .env
+          docker build \
+            --build-arg FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }} \
+            --build-arg OKTA_CLIENT_ID=${{ secrets.OKTA_CLIENT_ID }} \
+            --build-arg OKTA_CLIENT_SECRET=${{ secrets.OKTA_CLIENT_SECRET }} \
+            --build-arg OKTA_METADATA_URL=${{ secrets.OKTA_METADATA_URL }} \
+            -t ${{ secrets.ACR_LOGIN_SERVER }}/oicdapp:latest .
           docker push ${{ secrets.ACR_LOGIN_SERVER }}/oicdapp:latest
+

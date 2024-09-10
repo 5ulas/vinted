@@ -100,3 +100,8 @@ variable "azurerm_subscription_id" {
   type        = string
   default     = "107d9e92-c72b-4e37-92c4-b32a93bacdcb"
 }
+
+variable "vinted_container_registry_name" {
+  type        = string
+  default     = "vintedContainerRegistry"
+}
