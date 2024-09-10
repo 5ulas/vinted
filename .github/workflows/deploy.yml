@@ -28,6 +28,6 @@ jobs:
             --build-arg OKTA_CLIENT_ID=${{ secrets.OKTA_CLIENT_ID }} \
             --build-arg OKTA_CLIENT_SECRET=${{ secrets.OKTA_CLIENT_SECRET }} \
             --build-arg OKTA_METADATA_URL=${{ secrets.OKTA_METADATA_URL }} \
-            -t ${{ secrets.ACR_LOGIN_SERVER }}/oicdapp:latest .
+            -t ${{ secrets.ACR_LOGIN_SERVER }}/oicdapp:latest app
           docker push ${{ secrets.ACR_LOGIN_SERVER }}/oicdapp:latest
 
